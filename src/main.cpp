@@ -11,6 +11,7 @@ int main() {
 	User u1("Bill", "123456","123456@qq.com","18819473330");
     Meeting mee("OK", "dsa", d1, d2, "fu");
     ptr->createMeeting(mee);
+	ptr->createUser(u1);
     ptr->sync();
 	getchar();
 	return 0;

@@ -29,7 +29,7 @@ bool Storage::readFromFile(const char *fpath) {
             countvaild++;
             count++;
         }
-        if (temp.length() == 0) {
+		if (temp.length() == 0 && countvaild < count && count > 0){
             count -= countvaild;
             countvaild = 0;
         }
@@ -48,14 +48,14 @@ bool Storage::readFromFile(const char *fpath) {
             countvaild++;
             count++;
         }
-        if (temp.length() == 0) {
+		if (temp.length() == 0 && countvaild != 4 && countvaild < count && count > 0) {
             count -= countvaild;
             countvaild = 0;
         }
         if (countvaild == 4)
             countvaild = 0;
     }
-    for (int i = 0; i < count; i += 4) {
+    for (int i = 0; i < count; i += 5) {
         Meeting meeting(tem[i], tem[i+1], Date::stringToDate(tem[i+2]),
         Date::stringToDate(tem[i+3]), tem[i+4]);
         meetingList_.push_back(meeting);
