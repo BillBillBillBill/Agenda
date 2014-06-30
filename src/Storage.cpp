@@ -1,12 +1,15 @@
 #include <fstream>
-#include "Storage.h"
 #include <string>
-//Storage::DISALLOW_COPY_AND_ASSIGN(Storage storage) {}
+#include <list>
+#include "Storage.h"
+
+
 Storage::Storage() {
     readFromFile("Agenda.data");
 }
 
-    // storage structure with list, or you have better structures e.g. balanced tree
+// storage structure with list, or you have better structures
+// e.g. balanced tree
 bool Storage::readFromFile(const char *fpath) {
     std::fstream readFile;
     readFile.open(fpath);
@@ -53,7 +56,8 @@ bool Storage::readFromFile(const char *fpath) {
             countvaild = 0;
     }
     for (int i = 0; i < count; i += 4) {
-        Meeting meeting(tem[i], tem[i+1], Date::stringToDate(tem[i+2]), Date::stringToDate(tem[i+3]), tem[i+4]);
+        Meeting meeting(tem[i], tem[i+1], Date::stringToDate(tem[i+2]),
+        Date::stringToDate(tem[i+3]), tem[i+4]);
         meetingList_.push_back(meeting);
     }
     readFile.close();
@@ -71,11 +75,14 @@ bool Storage::writeToFile(const char *fpath) {
         << i->getPassword() << "\",email:\"" << i->getEmail()
         << "\",phone:\"" << i->getPhone() << "\"}\n";
     }
-    writeFile << "{collection:\"Meeting\",total:" << meetingList_.size() << "}\n";
+    writeFile << "{collection:\"Meeting\",total:"
+              << meetingList_.size()<< "}\n";
     for (auto i = meetingList_.begin(); i != meetingList_.end(); i++) {
-        writeFile << "{sponsor:\"" << i->getSponsor() << "\"" << ",participator:\""
-        << i->getParticipator() << "\",sdate:\"" << Date::dateToString(i->getStartDate()) << "\",edate:\""
-        <<Date::dateToString(i->getEndDate()) << "\",title:\"" << i->getTitle() << "\"}\n";
+        writeFile << "{sponsor:\"" << i->getSponsor() << "\""
+        << ",participator:\"" << i->getParticipator() << "\",sdate:\""
+        << Date::dateToString(i->getStartDate()) << "\",edate:\""
+        <<Date::dateToString(i->getEndDate()) << "\",title:\""
+        << i->getTitle() << "\"}\n";
     }
     writeFile.close();
     return true;
@@ -94,7 +101,8 @@ Storage::~Storage() {
     delete instance_;
 }
 
-	// CRUD for User & Meeting using C++11 Function Template and Lambda Expressions
+    // CRUD for User & Meeting using C++11
+    // Function Template and Lambda Expressions
 void Storage::createUser(const User& user) {
     userList_.push_back(user);
 }
@@ -109,7 +117,8 @@ std::list<User> Storage::queryUser(std::function<bool(const User&)> filter) {
     return FoundedUser;
 }
 // return found users
-int Storage::updateUser(std::function<bool(const User&)> filter, std::function<void(User&)> switcher) {
+int Storage::updateUser(std::function<bool(const User&)> filter,
+std::function<void(User&)> switcher) {
     int count = 0;
     for (auto i = userList_.begin(); i != userList_.end(); i++) {
         if (filter(*i)) {
@@ -135,7 +144,8 @@ void Storage::createMeeting(const Meeting& meeting) {
     meetingList_.push_back(meeting);
 }
 
-std::list<Meeting> Storage::queryMeeting(std::function<bool(const Meeting&)> filter) {
+std::list<Meeting> Storage::queryMeeting(std::function<bool
+(const Meeting&)> filter) {
     std::list<Meeting> FoundedMeeting;
     for (auto i = meetingList_.begin(); i != meetingList_.end(); i++) {
         if (filter(*i)) {
@@ -145,7 +155,8 @@ std::list<Meeting> Storage::queryMeeting(std::function<bool(const Meeting&)> fil
     return FoundedMeeting;
 }
 // return found meetings
-int Storage::updateMeeting(std::function<bool(const Meeting&)> filter, std::function<void(Meeting&)> switcher) {
+int Storage::updateMeeting(std::function<bool(const Meeting&)> filter,
+std::function<void(Meeting&)> switcher) {
     int count = 0;
     for (auto i = meetingList_.begin(); i != meetingList_.end(); i++) {
         if (filter(*i)) {

@@ -1,48 +1,49 @@
 #include "User.h"
+#include <string>
 
 User::User() {
-  name_ = "undefined";
-  password_ = "undefined";
-  email_ = "NULL@undefined.com";
-  phone_ = "13000000000";
+    name_ = "undefined";
+    password_ = "undefined";
+    email_ = "NULL@undefined.com";
+    phone_ = "13000000000";
 }
 
 User::User(std::string userName, std::string userPassword,
-       std::string userEmail, std::string userPhone) {
-  name_ = userName;
-  password_ = userPassword;
-  email_ = userEmail;
-  phone_ = userPhone;
+        std::string userEmail, std::string userPhone) {
+    name_ = userName;
+    password_ = userPassword;
+    email_ = userEmail;
+    phone_ = userPhone;
 }
 
-std::string User::getName() const{
-  return name_;
+std::string User::getName() const {
+    return name_;
 }
 
-void User::setName(std::string name){
-  name_ = name;
+void User::setName(std::string name) {
+    name_ = name;
 }
 
-std::string User::getPassword() const{
-  return password_;
+std::string User::getPassword() const {
+    return password_;
 }
 
 void User::setPassword(std::string password) {
-  password_ = password;
+    password_ = password;
 }
 
-std::string User::getEmail() const{
-  return email_;
+std::string User::getEmail() const {
+    return email_;
 }
 
 void User::setEmail(std::string email) {
-  email_ = email;
+    email_ = email;
 }
 
-std::string User::getPhone() const{
-  return phone_;
+std::string User::getPhone() const {
+    return phone_;
 }
 
 void User::setPhone(std::string phone) {
-  phone_ = phone;
+    phone_ = phone;
 }
