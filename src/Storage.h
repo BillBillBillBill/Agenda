@@ -1,8 +1,8 @@
 #ifndef AGENDA_STORAGE_H
 #define AGENDA_STORAGE_H
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-TypeName(const TypeName&); \
-void operator=(const TypeName&)
+  TypeName(const TypeName&); \
+  void operator=(const TypeName&)
 #include <list>
 #include <string>
 #include <functional>
@@ -37,7 +37,8 @@ class Storage {
     int deleteUser(std::function<bool(const User&)> filter);
     // return the number of deleted users
     void createMeeting(const Meeting&);
-    std::list<Meeting> queryMeeting(std::function<bool(const Meeting&)> filter);
+    std::list<Meeting> queryMeeting(
+                       std::function<bool(const Meeting&)> filter);
     // return found meetings
     int updateMeeting(std::function<bool(const Meeting&)> filter,
                       std::function<void(Meeting&)> switcher);
