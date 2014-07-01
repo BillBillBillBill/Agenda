@@ -25,11 +25,18 @@ bool Storage::readFromFile(const char *fpath) {
             continue;
             if (temp == "Meeting")
                 break;
+            for (auto i = userList_.begin(); i != userList_.end(); i++) {
+                if (i->getName() == temp) {
+                    for (int i = 0; i < 6; i++)
+                       getline(readFile, temp, '"');
+               continue;
+            }  //avoid same
+            }
             tem[count] = temp;
             countvaild++;
             count++;
         }
-		if (temp.length() == 0 && countvaild < count && count > 0){
+       if (temp.length() == 0 && countvaild < count && count > 0){
             count -= countvaild;
             countvaild = 0;
         }
@@ -48,7 +55,7 @@ bool Storage::readFromFile(const char *fpath) {
             countvaild++;
             count++;
         }
-		if (temp.length() == 0 && countvaild != 4 && countvaild < count && count > 0) {
+ if (temp.length() == 0 && countvaild < count && count > 0) {
             count -= countvaild;
             countvaild = 0;
         }
@@ -65,7 +72,7 @@ bool Storage::readFromFile(const char *fpath) {
 }
 
 bool Storage::writeToFile(const char *fpath) {
-    std::fstream writeFile;
+    std::ofstream writeFile;
     writeFile.open(fpath);
     if (!writeFile)
         return false;
@@ -104,6 +111,10 @@ Storage::~Storage() {
     // CRUD for User & Meeting using C++11
     // Function Template and Lambda Expressions
 void Storage::createUser(const User& user) {
+    for (auto i = userList_.begin(); i != userList_.end(); i++) {
+            if (i->getName() == user.getName())
+             return;
+    }
     userList_.push_back(user);
 }
 
@@ -130,17 +141,26 @@ std::function<void(User&)> switcher) {
 }
 // return the number of updated users
 int Storage::deleteUser(std::function<bool(const User&)> filter) {
+
     int count = 0;
-    for (auto i = userList_.begin(); i != userList_.end(); i++) {
+    for (auto i = userList_.begin(); i != userList_.end(); ) {  
         if (filter(*i)) {
-            userList_.erase(i);
+            auto tmp = i;
+            i++;
+            userList_.erase(tmp);
             count++;
-        }
+        } else {i++;}
     }
     return count;
 }
 // return the number of deleted users
 void Storage::createMeeting(const Meeting& meeting) {
+    for (auto i = meetingList_.begin();
+          i != meetingList_.end(); i++) {
+            if (i->getTitle() ==  meeting.getTitle()
+                && i->getParticipator() == meeting.getParticipator())
+             return;
+    }
     meetingList_.push_back(meeting);
 }
 
@@ -169,11 +189,13 @@ std::function<void(Meeting&)> switcher) {
 // return the number of updated meetings
 int Storage::deleteMeeting(std::function<bool(const Meeting&)> filter) {
     int count = 0;
-    for (auto i = meetingList_.begin(); i != meetingList_.end(); i++) {
+    for (auto i = meetingList_.begin(); i != meetingList_.end(); ) {  
         if (filter(*i)) {
-            meetingList_.erase(i);
+            auto tmp = i;
+            i++;
+            meetingList_.erase(tmp);
             count++;
-        }
+        } else {i++;}
     }
     return count;
 }
@@ -183,3 +205,5 @@ bool Storage::sync(void) {
     return writeToFile("Agenda.data");
 }
 
+ 
+ 

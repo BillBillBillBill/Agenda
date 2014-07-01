@@ -25,7 +25,6 @@ class AgendaService {
     std::list<Meeting> listAllParticipateMeetings(std::string userName);
     bool deleteMeeting(std::string userName, std::string title);
     bool deleteAllMeetings(std::string userName);
-
     void startAgenda(void);
     void quitAgenda(void);
 
