@@ -146,5 +146,6 @@ void AgendaService::startAgenda(void) {
 
 void AgendaService::quitAgenda(void) {
     std::cout << "Now quit AgendaService..\n";
+    storage_->sync();
 }
 

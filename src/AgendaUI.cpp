@@ -6,6 +6,10 @@ AgendaUI::AgendaUI() {
     startAgenda();
 }
 
+AgendaUI::~AgendaUI() {
+    quitAgenda();
+}
+
 void AgendaUI::OperationLoop(void) {
     while (true) {
         std::string op;
@@ -113,6 +117,7 @@ bool AgendaUI::executeOperation(std::string op) {
             }
             else {
                 return false;
+            }
         } else {
         if ( op == "-r") {
             userRegister();
@@ -128,6 +133,7 @@ bool AgendaUI::executeOperation(std::string op) {
             }
         else {
             return false;
+            }
         }
 }
 
@@ -180,7 +186,15 @@ void AgendaUI::deleteUser(void) {
 }
 
 void AgendaUI::listAllUsers(void) {
-    
+    std::cout << "List All Users\n";
+    std::list<User> listtoprint;
+    std::list<User> oringin = agendaService_.listAllUsers();
+    for (std::list<User>::iterator i = oringin.begin(); i != oringin.end(); i++) {
+        std::cout << "Name:  " << i->getName();
+        std::cout << "Email:  " << i->getEmail();
+        std::cout << "Phone:  " << i->getPhone();
+        std::cout << "\n";
+    }
 }
 
 void AgendaUI::createMeeting(void) {
@@ -203,31 +217,84 @@ void AgendaUI::createMeeting(void) {
 }
 
 void AgendaUI::listAllMeetings(void) {
-    
+    std::cout << "List All Meetings\n";
+    std::list<Meeting> listtoprint;
+    std::list<Meeting> oringin = agendaService_.listAllMeetings(userName_);
+    for (std::list<Meeting>::iterator i = oringin.begin(); i != oringin.end(); i++) {
+        listtoprint.push_back(*i);
+    }
+    printMeetings(listtoprint);
 }
 
 void AgendaUI::listAllSponsorMeetings(void) {
-    
+    std::cout << "List All Sponsor Meetings\n";
+    std::list<Meeting> listtoprint;
+    std::list<Meeting> oringin = agendaService_.listAllSponsorMeetings(userName_);
+    for (std::list<Meeting>::iterator i = oringin.begin(); i != oringin.end(); i++) {
+        listtoprint.push_back(*i);
+    }
+    printMeetings(listtoprint);
 }
 
 void AgendaUI::listAllParticipateMeetings(void) {
-    
+    std::cout << "List All Participate Meetings\n";
+    std::list<Meeting> listtoprint;
+    std::list<Meeting> oringin = agendaService_.listAllParticipateMeetings(userName_);
+    for (std::list<Meeting>::iterator i = oringin.begin(); i != oringin.end(); i++) {
+        listtoprint.push_back(*i);
+    }
+    printMeetings(listtoprint);
 }
 
 void AgendaUI::queryMeetingByTitle(void) {
-    
+    std::cout << "Query Meeting By Title\n";
+    std::string title;
+    std::cout << "Please input the title:";
+    std::cin >> title;
+    std::list<Meeting> listtoprint;
+    std::list<Meeting> oringin = agendaService_.meetingQuery(userName_, title);
+    for (std::list<Meeting>::iterator i = oringin.begin(); i != oringin.end(); i++) {
+        listtoprint.push_back(*i);
+    }
+    printMeetings(listtoprint);
 }
 
 void AgendaUI::queryMeetingByTimeInterval(void) {
-    
+    std::cout << "Query Meeting By Time Interval\n";
+    std::string ST, ET;
+    std::list<Meeting> listtoprint;
+    std::cout << "Please input start time:<yyyy-mm-dd/hh:mm>\n";
+    std::cin >> ST;
+    std::cout << "Please input end time:<yyyy-mm-dd/hh:mm>\n";
+    std::cin >> ET;
+    std::list<Meeting> oringin = agendaService_.meetingQuery(userName_, ST, ET);
+    for (std::list<Meeting>::iterator i = oringin.begin(); i != oringin.end(); i++) {
+        listtoprint.push_back(*i);
+    }
+    printMeetings(listtoprint);
 }
 
 void AgendaUI::deleteMeetingByTitle(void) {
-    
+    std::cout << "Delete Meeting By Title\n";
+    std::string title;
+    std::cout << "Please input the title:";
+    std::cin >> title;
+    std::list<Meeting> listtoprint;
+    ///////////////////////////////////////////////////////////////////////
+    for (std::list<Meeting>::iterator i = oringin.begin(); i != oringin.end(); i++) {
+        listtoprint.push_back(*i);
+    }
+    printMeetings(listtoprint);
 }
 
 void AgendaUI::deleteAllMeetings(void) {
-    
+    std::cout << "Delete All Meetings\n";
+    std::list<Meeting> listtoprint;
+    /////////////std::list<Meeting> oringin = agendaService_.deleteAllMeetings(userName_);
+    for (std::list<Meeting>::iterator i = oringin.begin(); i != oringin.end(); i++) {
+        listtoprint.push_back(*i);
+    }
+    printMeetings(listtoprint);
 }
 
 void AgendaUI::printMeetings(std::list<Meeting> meetings) {
