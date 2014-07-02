@@ -165,9 +165,9 @@ bool Date::operator<(const Date& date) const {
 }
 
 bool Date::operator>=(const Date& date) const {
-    return (*this) < date;
+    return !((*this) < date);
 }
 
 bool Date::operator<=(const Date& date) const {
-    return (*this) > date;
+    return !((*this) > date);
 }

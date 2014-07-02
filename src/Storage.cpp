@@ -5,7 +5,7 @@
 
 
 Storage::Storage() {
-    readFromFile("Agenda.data");
+    readFromFile("agenda.data");
 }
 
 // storage structure with list, or you have better structures
@@ -18,49 +18,27 @@ bool Storage::readFromFile(const char *fpath) {
     std::string tem[500];
     std::string temp;
     int count = 0;
-    int countvaild = 0;
     while (getline(readFile, temp, '"')) {
         if (getline(readFile, temp, '"')) {
             if (temp == "User")
-            continue;
+                continue;
             if (temp == "Meeting")
                 break;
-            for (auto i = userList_.begin(); i != userList_.end(); i++) {
-                if (i->getName() == temp) {
-                    for (int i = 0; i < 6; i++)
-                       getline(readFile, temp, '"');
-               continue;
-            }  //avoid same
             }
             tem[count] = temp;
-            countvaild++;
             count++;
-        }
-       if (temp.length() == 0 && countvaild < count && count > 0){
-            count -= countvaild;
-            countvaild = 0;
-        }
-        if (countvaild == 4)
-                countvaild = 0;
+
     }
     for (int i = 0; i < count; i += 4) {
         User user(tem[i], tem[i+1], tem[i+2], tem[i+3]);
         userList_.push_back(user);
     }
     count = 0;
-    countvaild = 0;
     while (getline(readFile, temp, '"')) {
         if (getline(readFile, temp, '"')) {
             tem[count] = temp;
-            countvaild++;
             count++;
         }
- if (temp.length() == 0 && countvaild < count && count > 0) {
-            count -= countvaild;
-            countvaild = 0;
-        }
-        if (countvaild == 4)
-            countvaild = 0;
     }
     for (int i = 0; i < count; i += 5) {
         Meeting meeting(tem[i], tem[i+1], Date::stringToDate(tem[i+2]),
@@ -105,16 +83,12 @@ Storage* Storage::getInstance(void) {
 
 Storage::~Storage() {
     sync();
-    delete instance_;
+    instance_ = NULL;
 }
 
     // CRUD for User & Meeting using C++11
     // Function Template and Lambda Expressions
 void Storage::createUser(const User& user) {
-    for (auto i = userList_.begin(); i != userList_.end(); i++) {
-            if (i->getName() == user.getName())
-             return;
-    }
     userList_.push_back(user);
 }
 
@@ -141,7 +115,6 @@ std::function<void(User&)> switcher) {
 }
 // return the number of updated users
 int Storage::deleteUser(std::function<bool(const User&)> filter) {
-
     int count = 0;
     for (auto i = userList_.begin(); i != userList_.end(); ) {  
         if (filter(*i)) {
@@ -202,7 +175,7 @@ int Storage::deleteMeeting(std::function<bool(const Meeting&)> filter) {
 // return the number of deleted meetings
 // File IO
 bool Storage::sync(void) {
-    return writeToFile("Agenda.data");
+    return writeToFile("agenda.data");
 }
 
  

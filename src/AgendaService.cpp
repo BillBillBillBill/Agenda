@@ -26,8 +26,8 @@ bool queryMeetingsBySponsor(const Meeting& meeting) {
 
 bool queryMeetingsByNameTime(const Meeting& meeting) {
     if ((NAME == meeting.getParticipator() ||
-    NAME == meeting.getSponsor()) && SD == meeting.getStartDate()
-    && ED == meeting.getEndDate())
+    NAME == meeting.getSponsor()) && SD <= meeting.getStartDate()
+    && ED >= meeting.getEndDate())
         return true;
     return false;
 }
@@ -68,15 +68,34 @@ bool AgendaService::userLogIn(std::string userName, std::string password) {
     TITLE = password;
     NAME = userName;
     if ((storage_->queryUser(CheckUserValid)).size() > 0) {
-        std::cout << "Welcome !!" << userName << "\n";
         return true;}
-    std::cout <<  "Fail to Login!\n";
     return false;
 }
 
 bool AgendaService::userRegister(std::string userName, std::string password,std::string email, std::string phone) {
+/*        if (userName == "") {
+        std::cout << "[register] You must input the Name.Fail to register!!\n";
+        return false;
+    }
+    if (password == "") {
+        std::cout << "[register] You must input the Password.Fail to register!!\n";
+        return false;
+    }
+    if (email == "") {
+        std::cout << "[register] You must input the Email.Fail to register!!\n";
+        return false;
+    }
+    if (phone == "") {
+        std::cout << "[register] You must input the Phone.Fail to register!!\n";
+        return false;
+    }*/
+    std::list<User> l = listAllUsers();
+    for (std::list<User>::iterator i = l.begin(); i != l.end(); i++) {
+            if (i->getName() == userName)
+             return false;
+    }
+    
     storage_->createUser(User(userName, password, email, phone));
-    std::cout <<  "Register a user!\n";
     return true;
 }
 
@@ -85,9 +104,12 @@ bool AgendaService::deleteUser(std::string userName, std::string password) {
     TITLE = password;
     NAME = userName;
     count = storage_->deleteUser(CheckUserValid);
-    if (count != 0)
+    if (count != 0) {
         storage_->deleteMeeting(queryMeetingsByUser);
-    return true;
+        return true;
+        } else {
+        return false;
+        }
 }
  // a user can only delete itself
 std::list<User> AgendaService::listAllUsers(void) {
@@ -95,9 +117,24 @@ std::list<User> AgendaService::listAllUsers(void) {
 }
 
 bool AgendaService::createMeeting(std::string userName, std::string title, std::string participator, std::string startDate, std::string endDate) {
+    std::list<User> a = listAllUsers();
+    bool flag = false;
+    for (std::list<User>::iterator i = a.begin(); i != a.end(); i++) {
+            if (i->getName() == participator)
+             flag = true;
+    }
+    std::list<Meeting> b = listAllMeetings(userName);
+    for (std::list<Meeting>::iterator i = b.begin(); i != b.end(); i++) {
+            if (i->getStartDate() == Date::stringToDate(startDate) && i->getEndDate() == Date::stringToDate(endDate) && i->getSponsor() == userName && i->getTitle() == title)
+            return false;
+    }
+    if (flag && Date::isValid(Date::stringToDate(startDate)) && Date::isValid(Date::stringToDate(endDate))) {
     storage_->createMeeting(Meeting(userName, participator,
 Date::stringToDate(startDate), Date::stringToDate(endDate), title));
     return true;
+    } else {
+    return false;
+    }
 }
 
 std::list<Meeting> AgendaService::meetingQuery(std::string userName, std::string title) {
@@ -140,12 +177,10 @@ bool AgendaService::deleteAllMeetings(std::string userName) {
 }
 
 void AgendaService::startAgenda(void) {
-    std::cout << "Now start AgendaService..\n";
     storage_ = Storage::getInstance();
 }
 
 void AgendaService::quitAgenda(void) {
-    std::cout << "Now quit AgendaService..\n";
     storage_->sync();
 }
 
