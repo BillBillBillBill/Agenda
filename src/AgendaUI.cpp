@@ -38,9 +38,9 @@ void AgendaUI::startAgenda(void) {
 
 std::string AgendaUI::getOperation() {
     std::string ret = "";
-    ret += "\n-----------------------Agenda-----------------------\n";
+    ret += "\n-------------------------------Agenda-------------------------------\n";
     if (agendaService_.userLogIn(userName_, userPassword_) && userName_ != "" && userPassword_ != "") {
-        ret += "Hello,";
+        ret += "Hello, ";
         ret += userName_;
         ret += ", What do you want to do?\n";
         ret += "\nAction :\n";
@@ -63,7 +63,7 @@ std::string AgendaUI::getOperation() {
         ret += "r      -    Register an Agenda account\n";
         ret += "q      -    Quit Agenda\n";
     }
-    ret += "----------------------------------------------------\n\n";
+    ret += "--------------------------------------------------------------------\n\n";
     return ret;
 }
 
@@ -156,9 +156,6 @@ void AgendaUI::userRegister(void) {
     std::cin >> phone;
     if (agendaService_.userRegister(name, password, email, phone)){
         std::cout << "[register] succeed!\n";
-        userName_ = name;
-        userPassword_ = password;
-        userLogIn();
         }
     else
         std::cout << "[error] register fail!\n";
@@ -269,10 +266,10 @@ void AgendaUI::queryMeetingByTimeInterval(void) {
 }
 
 void AgendaUI::deleteMeetingByTitle(void) {
-    std::cout << " [delete meeting] [title]\n";
-    std::cout << " [delete meeting] ";
+    std::cout << "[delete meeting] ";
     std::string title;
     listAllMeetings();
+    std::cout << "[delete meeting] [title]\n";
     std::cin >> title;
     if (agendaService_.deleteMeeting(userName_, title)) {
         std::cout << "[delete meeting by title] succeed!";
