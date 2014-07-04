@@ -15,6 +15,7 @@ class AgendaUI {
     void startAgenda(void);
 	 std::string getOperation();
     bool executeOperation(std::string op);
+    void changeuserfile(void);
     void userLogIn(void);
     void userRegister(void);
     void quitAgenda(void);

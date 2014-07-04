@@ -1,8 +1,9 @@
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include "AgendaService.h"
 #include "AgendaUI.h"
-
+#include "Log.h"
 
 AgendaUI::AgendaUI() {
     startAgenda();
@@ -14,13 +15,14 @@ void AgendaUI::OperationLoop(void) {
     while (true) {
         std::string op;
         std::cout << getOperation();
-        if (agendaService_.userLogIn(userName_, userPassword_) && userName_ != "" && userPassword_ != "") {
+        if (userName_ != "" && userPassword_ != "") {
         std::cout << "Agenda@" << userName_ << " ： # ";
         } else {
         std::cout << "Agenda ： ~$ ";}
         std::cin >> op;
         if (!executeOperation(op)) {
             std::cout << "Input wrong, Please try again\n";
+            Log::writetofile("Execute operation", userName_ , false);
         }
         if (op == "q") {
             break;
@@ -34,15 +36,36 @@ void AgendaUI::startAgenda(void) {
     agendaService_.startAgenda();
     userName_ = "";
     userPassword_ = "";
+    Log::writetofile("Start Agenda", "System" , true);
+    Log::writetofile("Reading agenda data", "System" , true);
 }
 
 std::string AgendaUI::getOperation() {
     std::string ret = "";
+    std::string num = "";
+    std::stringstream ss;
     ret += "\n-------------------------------Agenda-------------------------------\n";
     if (agendaService_.userLogIn(userName_, userPassword_) && userName_ != "" && userPassword_ != "") {
         ret += "Hello, ";
         ret += userName_;
-        ret += ", What do you want to do?\n";
+        ret += ", What do you want to do?    \n";
+        if (userName_ != "admin")
+        ret += "You have ";
+        else
+        ret += "There are ";
+        ss << agendaService_.listAllMeetings(userName_).size();
+        ss >> num;
+        ret += num;
+        ret += " meeting in total.\n";
+        if (userName_ == "admin") {
+        ret += "There are ";
+        ss.clear();
+        ss << agendaService_.listAllUsers().size();
+        ss >> num;
+        ret += num;
+        ret += " user in total.\n";
+}
+
         ret += "\nAction :\n";
         ret += "o      -    Log out Agenda\n";
         ret += "dc     -    Delete Agenda Account\n";
@@ -55,6 +78,7 @@ std::string AgendaUI::getOperation() {
         ret += "qt     -    Query Meeting By Time Interval\n";
         ret += "dm     -    Delete Meeting By Title\n";
         ret += "da     -    Delete All Meetings\n";
+        ret += "cf     -    Change user file\n";
 
     } else {
         ret += "You haven't sign in\n";
@@ -113,6 +137,14 @@ bool AgendaUI::executeOperation(std::string op) {
                 userLogOut();
                 return true;
             }
+            else if (op == "cf") {
+                changeuserfile();
+                return true;
+            }
+            else if (op == "q") {
+            quitAgenda();
+            return true;
+            }
             else {
                 return false;
             }
@@ -140,10 +172,12 @@ void AgendaUI::userLogIn(void) {
     std::cout << "[log in] ";
     std::cin >> userName_;
     std::cin >> userPassword_;
-    if (agendaService_.userLogIn(userName_, userPassword_) && userName_ != "" && userPassword_ != "")
+    if (agendaService_.userLogIn(userName_, userPassword_) && userName_ != "" && userPassword_ != "") {
         std::cout << "[log in] succeed!\n";
-    else
+        Log::writetofile("Log in", userName_ , true);
+} else {
         std::cout << "[error] log in fail!\n";
+        Log::writetofile("Log in", userName_ , false);}
 }
 
 void AgendaUI::userRegister(void) {
@@ -156,27 +190,76 @@ void AgendaUI::userRegister(void) {
     std::cin >> phone;
     if (agendaService_.userRegister(name, password, email, phone)){
         std::cout << "[register] succeed!\n";
-        }
-    else
+        Log::writetofile("Register", userName_ , true);
+        } else {
         std::cout << "[error] register fail!\n";
+        Log::writetofile("Register", "Unknow" , false);}
+
 }
 
 void AgendaUI::quitAgenda(void) {
     agendaService_.quitAgenda();
     userName_ = "";
     userPassword_ = "";
+    Log::writetofile("Writing data to file", "System" , true);
+    Log::writetofile("Quit Agenda", "System" , true);
 }
 
+
+void AgendaUI::changeuserfile(void) {
+    std::string name, password, email, phone;
+    if (userName_ == "admin")
+    std::cout << "[Change user file] You are admin, you can change any user's file.\n";
+    std::cout << "[Change user file] [user name] [password] [email] [phone] \n[Change user file] ";
+    std::cin >> name;
+    std::cin >> password;
+    std::cin >> email;
+    std::cin >> phone;
+    if (name != userName_ && userName_ != "admin") {
+        std::cout << "[error] Change user file fail!\n";
+        Log::writetofile("Change user file", userName_ , false);
+        return;
+}
+    if (agendaService_.changeuserfile(userName_, userPassword_, name, password, email, phone)) {
+        std::cout << "[Change user file] succeed!\n";
+        Log::writetofile("Change user file", userName_ , true);
+        } else {
+        std::cout << "[error] Change user file fail!\n";
+        Log::writetofile("Change user file", userName_ , false);}
+
+        
+}
+
+
 void AgendaUI::userLogOut(void) {
+    Log::writetofile("User log out", userName_ , true);
     userName_ = "";
     userPassword_ = "";
 }
 
 void AgendaUI::deleteUser(void) {
-    if (agendaService_.deleteUser(userName_, userPassword_))
+    if (userName_ == "admin") {
+        std::string username;
+        std::cout << "[delete agenda account]You are admin, you can delete any user.\n";
+        std::cout << "[delete agenda account] [user name]\n";
+        std::cin >> username;
+        if (agendaService_.deleteUser(username)) {
         std::cout << "[delete agenda account] succeed!\n";
-    else
+        Log::writetofile("Deleteuser", userName_ , true);
+        } else {
         std::cout << "[error] delete agenda account fail!!\n";
+        Log::writetofile("Delete user", userName_ , false);
+
+}
+return;
+}
+    if (agendaService_.deleteUser(userName_, userPassword_)) {
+        std::cout << "[delete agenda account] succeed!\n";
+        Log::writetofile("Deleteuser", userName_ , true);
+    } else {
+        std::cout << "[error] delete agenda account fail!!\n";
+        Log::writetofile("Delete user", userName_ , false);
+    }
     userLogOut();
 }
 
@@ -192,6 +275,7 @@ void AgendaUI::listAllUsers(void) {
         std::cout << std::left <<  std::setw(13) << i->getPhone();
         std::cout << "\n";
     }
+    Log::writetofile("List all users", userName_ , true);
 }
 
 void AgendaUI::createMeeting(void) {
@@ -202,10 +286,13 @@ void AgendaUI::createMeeting(void) {
     std::cin >> participator;
     std::cin >> starttime;
     std::cin >> endtime;
-    if (agendaService_.createMeeting(userName_, title, participator, starttime, endtime))
+    if (agendaService_.createMeeting(userName_, title, participator, starttime, endtime)) {
         std::cout << "[create meeting] succeed!\n";
-    else
+        Log::writetofile("Create Meeting", userName_ , true);
+} else {
         std::cout << "[error] create meeting fail!\n";
+        Log::writetofile("Create Meeting", userName_ , false);
+}
 }
 
 void AgendaUI::listAllMeetings(void) {
@@ -216,6 +303,7 @@ void AgendaUI::listAllMeetings(void) {
         listtoprint.push_back(*i);
     }
     printMeetings(listtoprint);
+    Log::writetofile("List all meetings", userName_ , true);
 }
 
 void AgendaUI::listAllSponsorMeetings(void) {
@@ -226,6 +314,7 @@ void AgendaUI::listAllSponsorMeetings(void) {
         listtoprint.push_back(*i);
     }
     printMeetings(listtoprint);
+    Log::writetofile("List all sponsor meetings", userName_ , true);
 }
 
 void AgendaUI::listAllParticipateMeetings(void) {
@@ -236,9 +325,12 @@ void AgendaUI::listAllParticipateMeetings(void) {
         listtoprint.push_back(*i);
     }
     printMeetings(listtoprint);
+    Log::writetofile("List all participate meetings", userName_ , true);
 }
 
 void AgendaUI::queryMeetingByTitle(void) {
+    if (userName_ == "admin")
+    std::cout << "[query meeting] You are admin, you can query all meetings.\n";
     std::cout << "[query meeting] [title]\n";
     std::string title;
     std::cout << "[query meeting] ";
@@ -249,11 +341,14 @@ void AgendaUI::queryMeetingByTitle(void) {
         listtoprint.push_back(*i);
     }
     printMeetings(listtoprint);
+    Log::writetofile("Query meeting by title", userName_ , true);
 }
 
 void AgendaUI::queryMeetingByTimeInterval(void) {
-    std::cout << "[query meetings] [start time<yyyy-mm-dd/hh:mm>] [end time<yyyy-mm-dd/hh:mm>]\n";
-    std::cout << "[query meetings] ";
+    if (userName_ == "admin")
+    std::cout << "[query meeting] You are admin, you can query all meetings.\n";
+    std::cout << "[query meeting] [start time<yyyy-mm-dd/hh:mm>] [end time<yyyy-mm-dd/hh:mm>]\n";
+    std::cout << "[query meeting] ";
     std::string ST, ET;
     std::list<Meeting> listtoprint;
     std::cin >> ST;
@@ -263,9 +358,12 @@ void AgendaUI::queryMeetingByTimeInterval(void) {
         listtoprint.push_back(*i);
     }
     printMeetings(listtoprint);
+    Log::writetofile("Query meeting by time interval", userName_ , true);
 }
 
 void AgendaUI::deleteMeetingByTitle(void) {
+    if (userName_ == "admin")
+    std::cout << "[query meeting]You are admin, you can delete any meeting.\n";
     std::cout << "[delete meeting] ";
     std::string title;
     listAllMeetings();
@@ -273,17 +371,22 @@ void AgendaUI::deleteMeetingByTitle(void) {
     std::cin >> title;
     if (agendaService_.deleteMeeting(userName_, title)) {
         std::cout << "[delete meeting by title] succeed!";
+        Log::writetofile("Delete meeting by title", userName_ , true);
         } else {
         std::cout << "[error] delete meeting fail!";
+        Log::writetofile("Delete meeting by title", userName_ , false);
         }
     std::cout << "\n";
 }
 
 void AgendaUI::deleteAllMeetings(void) {
-    if (agendaService_.deleteAllMeetings(userName_))
+    if (agendaService_.deleteAllMeetings(userName_)) {
         std::cout << "[delete all meetings] succeed!";
-    else
+        Log::writetofile("Delete all meetings", userName_ , true);
+} else {
         std::cout << "[error] delete meeting fail!";
+        Log::writetofile("Delete all meetings", userName_ , false);
+}
     std::cout << "\n";
 }
 

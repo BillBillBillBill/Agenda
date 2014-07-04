@@ -3,9 +3,15 @@
 #include <iostream>
 std::string NAME;
 std::string TITLE;  //also as password
+std::string NP;
+std::string N;
+std::string E;
+std::string PHONE;
 Date SD;
 Date ED;
 bool queryMeetingsByUser(const Meeting& meeting) {
+    if (NAME == "admin")
+        return true;
     if (NAME == meeting.getParticipator() ||
         NAME == meeting.getSponsor())
         return true;
@@ -19,18 +25,27 @@ bool queryMeetingsByParticipator(const Meeting& meeting) {
 }
 
 bool queryMeetingsBySponsor(const Meeting& meeting) {
+    if (NAME == "admin")
+        return true;
     if (NAME == meeting.getSponsor())
         return true;
     return false;
 }
 
 bool queryMeetingsBySponsorTitle(const Meeting& meeting) {
+    if (NAME == "admin" && TITLE == meeting.getTitle())
+        return true;
     if (NAME == meeting.getSponsor() && TITLE == meeting.getTitle())
         return true;
     return false;
 }
 
 bool queryMeetingsByNameTime(const Meeting& meeting) {
+    if (NAME == "admin" && 
+       (((meeting.getStartDate() <= SD && meeting.getEndDate() >= SD) || (meeting.getEndDate() >= ED && meeting.getStartDate() <= ED))
+ || (SD >= meeting.getStartDate() && meeting.getEndDate() >= ED)
+ || (SD <= meeting.getStartDate() && meeting.getEndDate() <= ED)))
+        return true;
     if ((NAME == meeting.getParticipator() || NAME == meeting.getSponsor()) && 
        (((meeting.getStartDate() <= SD && meeting.getEndDate() >= SD) || (meeting.getEndDate() >= ED && meeting.getStartDate() <= ED))
  || (SD >= meeting.getStartDate() && meeting.getEndDate() >= ED)
@@ -40,6 +55,8 @@ bool queryMeetingsByNameTime(const Meeting& meeting) {
 }
 
 bool queryMeetingByNameTitle(const Meeting& meeting) {
+    if (NAME == "admin" && TITLE == meeting.getTitle())
+        return true;
     if ((NAME == meeting.getParticipator() ||
     NAME == meeting.getSponsor()) && TITLE == meeting.getTitle())
         return true;
@@ -50,6 +67,8 @@ bool queryUserByName(const User& user) {
     return (NAME == user.getName());
 }
 
+
+
 bool queryUserALL(const User& user) {
     return true;
 }
@@ -59,8 +78,23 @@ bool queryMeetingALL(const Meeting& meeting) {
 }
 
 bool CheckUserValid(const User& user) {
+    if (N == "admin" && TITLE == "admin" && user.getName() == NAME)
+    return true;
     return (user.getPassword() == TITLE && user.getName() == NAME);
 }
+
+bool FindUser(const User& user) {
+return (user.getName() == NAME);
+}
+
+
+void changefile(User& user) {
+user.setPassword(NP);
+user.setPhone(PHONE);
+user.setEmail(E);
+}
+
+
 
 
 AgendaService::AgendaService() {
@@ -72,6 +106,22 @@ AgendaService::~AgendaService() {
     if (storage_)
     delete storage_;
 }
+
+bool AgendaService::changeuserfile(std::string userName, std::string password, std::string name , std::string newpassword ,std::string email, std::string phone) {
+    
+    TITLE = password;
+    NAME = name;
+    N = userName;
+    NP = newpassword;
+    E = email;
+    PHONE = phone;
+if (storage_->updateUser(CheckUserValid, changefile))
+return true;
+return false;
+}
+
+
+
 
 bool AgendaService::userLogIn(std::string userName, std::string password) {
     TITLE = password;
@@ -123,6 +173,21 @@ bool AgendaService::deleteUser(std::string userName, std::string password) {
         }
 }
  // a user can only delete itself
+bool AgendaService::deleteUser(std::string userName) {
+    int count = 0;
+    NAME = userName;
+    count = storage_->deleteUser(FindUser);
+    if (count != 0) {
+        storage_->deleteMeeting(queryMeetingsByUser);
+        return true;
+        } else {
+        return false;
+        }
+}
+
+
+
+
 std::list<User> AgendaService::listAllUsers(void) {
     return storage_->queryUser(queryUserALL);
 }

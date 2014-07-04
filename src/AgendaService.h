@@ -4,6 +4,7 @@
 #include <string>
 #include "Storage.h"
 
+
 class AgendaService {
     public:
     AgendaService();
@@ -13,7 +14,10 @@ class AgendaService {
                     std::string email, std::string phone);
     bool deleteUser(std::string userName, std::string password);
     // a user can only delete itself
+    bool deleteUser(std::string userName);
     std::list<User> listAllUsers(void);
+    bool changeuserfile(std::string userName, std::string password, std::string name,
+std::string newpassword, std::string email, std::string phone);
     bool createMeeting(std::string userName, std::string title,
                        std::string participator,
                        std::string startDate, std::string endDate);
